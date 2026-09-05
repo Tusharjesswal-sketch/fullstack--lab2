@@ -1,0 +1,514 @@
+
+const products = [
+    {
+        id: 1,
+        name: "Wireless Headphones",
+        price: 1999,
+        image: "🎧"
+    },
+    {
+        id: 2,
+        name: "Running Shoes",
+        price: 2499,
+        image: "👟"
+    },
+    {
+        id: 3,
+        name: "Travel Backpack",
+        price: 1299,
+        image: "🎒"
+    },
+    {
+        id: 4,
+        name: "Smart Watch",
+        price: 3499,
+        image: "⌚"
+    },
+    {
+        id: 5,
+        name: "Fashion Sunglasses",
+        price: 799,
+        image: "🕶️"
+    },
+    {
+        id: 6,
+        name: "Classic Cap",
+        price: 499,
+        image: "🧢"
+    },
+    {
+        id: 7,
+        name: "Cotton T-Shirt",
+        price: 699,
+        image: "👕"
+    },
+    {
+        id: 8,
+        name: "Premium Hoodie",
+        price: 1599,
+        image: "🧥"
+    }
+];
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function saveCart() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function addToCart(productId) {
+
+    const product = products.find(
+        item => item.id === productId
+    );
+
+    if (!product) {
+        return;
+    }
+
+    const existingProduct = cart.find(
+        item => item.id === productId
+    );
+
+    if (existingProduct) {
+
+        existingProduct.quantity++;
+
+    } else {
+
+        cart.push({
+            ...product,
+            quantity: 1
+        });
+
+    }
+
+    saveCart();
+
+    updateCartCount();
+
+    alertMessage("Product added to cart!");
+}
+
+function updateCartCount() {
+
+    const cartCountElement =
+        document.querySelector("#cart-count");
+
+    if (!cartCountElement) {
+        return;
+    }
+
+    const totalItems = cart.reduce(
+        (total, item) => total + item.quantity,
+        0
+    );
+
+    cartCountElement.textContent = totalItems;
+}
+
+function renderProducts() {
+
+    const productContainer =
+        document.querySelector("#product-container");
+
+    if (!productContainer) {
+        return;
+    }
+
+    productContainer.innerHTML = "";
+
+    products.forEach(product => {
+
+        const card = document.createElement("div");
+
+        card.className = "product-card";
+
+        card.innerHTML = `
+            <div class="product-image">
+                ${product.image}
+            </div>
+
+            <h3>${product.name}</h3>
+
+            <p class="price">
+                ₹${product.price.toLocaleString("en-IN")}
+            </p>
+
+            <button 
+                class="btn add-cart-btn"
+                data-id="${product.id}">
+                Add to Cart
+            </button>
+        `;
+
+        productContainer.appendChild(card);
+
+    });
+
+    const buttons =
+        document.querySelectorAll(".add-cart-btn");
+
+    buttons.forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const productId =
+                Number(button.dataset.id);
+
+            addToCart(productId);
+
+        });
+
+    });
+}
+
+
+function renderCart() {
+
+    const cartContainer =
+        document.querySelector("#cart-container");
+
+    if (!cartContainer) {
+        return;
+    }
+
+    cartContainer.innerHTML = "";
+
+    if (cart.length === 0) {
+
+        cartContainer.innerHTML = `
+            <div class="empty-cart">
+                <h2>Your cart is empty</h2>
+                <p>Add some products to continue shopping.</p>
+                <a href="products.html" class="btn">
+                    Shop Now
+                </a>
+            </div>
+        `;
+
+        calculateTotal();
+
+        return;
+    }
+
+    cart.forEach(item => {
+
+        const cartItem =
+            document.createElement("div");
+
+        cartItem.className = "cart-item";
+
+        cartItem.innerHTML = `
+            <div class="cart-product">
+                <span class="cart-image">
+                    ${item.image}
+                </span>
+
+                <div>
+                    <h3>${item.name}</h3>
+                    <p>₹${item.price.toLocaleString("en-IN")}</p>
+                </div>
+            </div>
+
+            <div class="cart-quantity">
+                <label>Quantity:</label>
+
+                <input
+                    type="number"
+                    min="1"
+                    value="${item.quantity}"
+                    class="quantity-input"
+                    data-id="${item.id}"
+                >
+            </div>
+
+            <div class="cart-subtotal">
+                <strong>
+                    ₹${(
+                        item.price * item.quantity
+                    ).toLocaleString("en-IN")}
+                </strong>
+            </div>
+
+            <button
+                class="remove-btn"
+                data-id="${item.id}">
+                Remove
+            </button>
+        `;
+
+        cartContainer.appendChild(cartItem);
+
+    });
+
+    const quantityInputs =
+        document.querySelectorAll(".quantity-input");
+
+    quantityInputs.forEach(input => {
+
+        input.addEventListener("change", () => {
+
+            const productId =
+                Number(input.dataset.id);
+
+            let quantity =
+                parseInt(input.value);
+
+            if (quantity < 1 || isNaN(quantity)) {
+                quantity = 1;
+            }
+
+            const product =
+                cart.find(item => item.id === productId);
+
+            if (product) {
+                product.quantity = quantity;
+            }
+
+            saveCart();
+
+            renderCart();
+
+            updateCartCount();
+
+        });
+
+    });
+
+    const removeButtons =
+        document.querySelectorAll(".remove-btn");
+
+    removeButtons.forEach(button => {
+
+        button.addEventListener("click", () => {
+
+            const productId =
+                Number(button.dataset.id);
+
+            cart = cart.filter(
+                item => item.id !== productId
+            );
+
+            saveCart();
+
+            renderCart();
+
+            updateCartCount();
+
+        });
+
+    });
+
+    calculateTotal();
+}
+
+
+function calculateTotal() {
+
+    const totalElement =
+        document.querySelector("#grand-total");
+
+    if (!totalElement) {
+        return;
+    }
+
+    const total = cart.reduce(
+        (sum, item) =>
+            sum + item.price * item.quantity,
+        0
+    );
+
+    totalElement.textContent =
+        `₹${total.toLocaleString("en-IN")}`;
+}
+
+
+function setupCheckout() {
+
+    const checkoutForm =
+        document.querySelector("#checkout-form");
+
+    if (!checkoutForm) {
+        return;
+    }
+
+    checkoutForm.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        clearErrors();
+
+        let valid = true;
+
+        const name =
+            document.querySelector("#name").value.trim();
+
+        const address =
+            document.querySelector("#address").value.trim();
+
+        const city =
+            document.querySelector("#city").value.trim();
+
+        const pincode =
+            document.querySelector("#pincode").value.trim();
+
+        const phone =
+            document.querySelector("#phone").value.trim();
+
+        const payment =
+            document.querySelector(
+                'input[name="payment"]:checked'
+            );
+
+
+        if (name === "") {
+
+            showError(
+                "name",
+                "Name is required."
+            );
+
+            valid = false;
+        }
+
+        if (address === "") {
+
+            showError(
+                "address",
+                "Address is required."
+            );
+
+            valid = false;
+        }
+
+
+        if (city === "") {
+
+            showError(
+                "city",
+                "City is required."
+            );
+
+            valid = false;
+        }
+
+
+        if (!/^\d{6}$/.test(pincode)) {
+
+            showError(
+                "pincode",
+                "Pincode must be exactly 6 digits."
+            );
+
+            valid = false;
+        }
+
+        if (!/^\d{10}$/.test(phone)) {
+
+            showError(
+                "phone",
+                "Phone must be exactly 10 digits."
+            );
+
+            valid = false;
+        }
+
+
+        if (!payment) {
+
+            showError(
+                "payment",
+                "Please select a payment method."
+            );
+
+            valid = false;
+        }
+
+        if (valid) {
+
+            localStorage.removeItem("cart");
+
+            cart = [];
+
+            document.querySelector("#confirmation")
+                .innerHTML = `
+                    <div class="success-message">
+                        <h2>Order placed!</h2>
+                        <p>
+                            Thank you for shopping with StyleHub.
+                        </p>
+                    </div>
+                `;
+
+            checkoutForm.reset();
+
+            updateCartCount();
+
+        }
+
+    });
+
+}
+
+function showError(fieldId, message) {
+
+    const field =
+        document.querySelector(`#${fieldId}`);
+
+    if (!field) {
+        return;
+    }
+
+    const error =
+        document.createElement("small");
+
+    error.className = "error-message";
+
+    error.textContent = message;
+
+    field.parentNode.insertBefore(
+        error,
+        field.nextSibling
+    );
+}
+
+function clearErrors() {
+
+    const errors =
+        document.querySelectorAll(".error-message");
+
+    errors.forEach(error => {
+        error.remove();
+    });
+
+}
+function alertMessage(message) {
+
+    const messageBox =
+        document.querySelector("#message");
+
+    if (!messageBox) {
+        return;
+    }
+
+    messageBox.textContent = message;
+
+    setTimeout(() => {
+        messageBox.textContent = "";
+    }, 2000);
+
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    renderProducts();
+
+    renderCart();
+
+    updateCartCount();
+
+    setupCheckout();
+
+});

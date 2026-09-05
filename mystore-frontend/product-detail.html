@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>StyleHub - Product Details</title>
+
+    <link rel="stylesheet"
+          href="style.css">
+
+</head>
+
+<body>
+
+    <header>
+
+        <div class="logo">
+            StyleHub
+        </div>
+
+        <nav>
+
+            <a href="index.html">
+                Home
+            </a>
+
+            <a href="products.html">
+                Products
+            </a>
+
+            <a href="cart.html">
+                Cart
+                <span id="cart-count">0</span>
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <main class="container">
+
+        <section class="product-detail">
+
+
+            <div class="detail-image">
+
+                🎧
+
+            </div>
+
+            <div class="detail-content">
+
+                <h1>
+                    Wireless Headphones
+                </h1>
+
+                <p class="price">
+                    ₹1,999
+                </p>
+
+                <p>
+                    Experience high-quality sound with our
+                    wireless headphones. Enjoy clear audio,
+                    comfortable ear cushions and long-lasting
+                    battery life for music, movies and calls.
+                </p>
+
+
+                <h3>
+                    Features
+                </h3>
+
+                <ul>
+
+                    <li>
+                        Bluetooth Connectivity
+                    </li>
+
+                    <li>
+                        20 Hours Battery Life
+                    </li>
+
+                    <li>
+                        Noise Reduction
+                    </li>
+
+                    <li>
+                        Comfortable Design
+                    </li>
+
+                    <li>
+                        Lightweight Construction
+                    </li>
+
+                </ul>
+
+
+                <label for="quantity">
+                    Quantity:
+                </label>
+
+                <select id="quantity">
+
+                    <option value="1">
+                        1
+                    </option>
+
+                    <option value="2">
+                        2
+                    </option>
+
+                    <option value="3">
+                        3
+                    </option>
+
+                    <option value="4">
+                        4
+                    </option>
+
+                    <option value="5">
+                        5
+                    </option>
+
+                </select>
+
+                <br><br>
+
+                <button
+                    class="btn"
+                    onclick="addProductToCart()">
+
+                    Add to Cart
+
+                </button>
+
+                <div id="message"></div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+
+        <p>
+            Contact: support@stylehub.com |
+            Phone: +91 98765 43210
+        </p>
+
+        <p>
+            &copy; 2026 StyleHub.
+            All Rights Reserved.
+        </p>
+
+    </footer>
+
+    <script src="script.js"></script>
+
+
+    <script>
+
+        function addProductToCart() {
+
+            const quantity =
+                Number(
+                    document.getElementById("quantity").value
+                );
+
+            const product =
+                products.find(
+                    item => item.id === 1
+                );
+
+            if (!product) {
+                return;
+            }
+
+            const existingProduct =
+                cart.find(
+                    item => item.id === product.id
+                );
+
+            if (existingProduct) {
+
+                existingProduct.quantity += quantity;
+
+            } else {
+
+                cart.push({
+
+                    ...product,
+
+                    quantity: quantity
+
+                });
+
+            }
+
+            saveCart();
+
+            updateCartCount();
+
+            const message =
+                document.getElementById("message");
+
+            message.textContent =
+                "Product added to cart!";
+
+            setTimeout(() => {
+
+                message.textContent = "";
+
+            }, 2000);
+
+        }
+
+    </script>
+
+</body>
+
+</html>
